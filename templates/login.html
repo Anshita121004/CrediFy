@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Secure Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1B365D] to-[#005BAC]">
+
+    <div class="bg-gradient-to-b from-white to-gray-100 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-[#1B365D] text-center mb-6">Welcome Back to CrediFy !</h2>
+
+
+        <form method="POST" class="flex flex-col space-y-4">
+            <input type="text" name="username" placeholder="Username"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm">
+            
+            <input type="password" name="password" placeholder="Password"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm">
+            
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-[#005BAC] to-[#1B365D] hover:from-[#003E6B] hover:to-[#00274D] transition-all text-white font-semibold py-3 rounded-md shadow-md">
+                Login
+            </button>
+        </form>
+
+        <p class="text-gray-700 text-center mt-4">Forgot Password? <a href="#" class="text-black hover:text-gray-800 font-medium">Reset Here</a></p>
+    </div>
+
+</body>
+</html>

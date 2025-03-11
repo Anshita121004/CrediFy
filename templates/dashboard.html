@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1B365D] to-[#005BAC]">
+
+    <div class="bg-gradient-to-b from-white to-gray-100 p-8 rounded-lg shadow-lg w-full max-w-2xl">
+        <h1 class="text-2xl font-semibold text-[#1B365D] text-center mb-6">Financial Risk & CIBIL Score Dashboard</h1>
+        
+        <form id="riskForm" class="space-y-4">
+            <input type="number" id="revenue" placeholder="Annual Revenue"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm" required>
+            
+            <input type="number" id="loan" placeholder="Outstanding Loan"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm" required>
+            
+            <input type="number" id="gst" placeholder="GST Compliance (0-100%)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm" required>
+            
+            <input type="number" id="defaults" placeholder="Loan Defaults (0-10)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm" required>
+            
+            <select id="bank" class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm">
+                <option value="Low">Low Bank Transactions</option>
+                <option value="Medium">Medium Bank Transactions</option>
+                <option value="High">High Bank Transactions</option>
+            </select>
+
+            <select id="market" class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm">
+                <option value="Declining">Declining Market</option>
+                <option value="Stable">Stable Market</option>
+                <option value="Growing">Growing Market</option>
+            </select>
+            
+            <input type="number" id="credit" placeholder="Credit Utilization (300-900)"
+                class="w-full px-4 py-3 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-[#005BAC] focus:outline-none shadow-sm" required>
+            
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-[#005BAC] to-[#1B365D] hover:from-[#003E6B] hover:to-[#00274D] transition-all text-white font-semibold py-3 rounded-md shadow-md">
+                Check Risk
+            </button>
+        </form>
+        
+        <h3 class="text-xl font-semibold text-center mt-4">Risk Level: <span id="risk-result" class="text-red-500">--</span></h3>
+
+        <button id="generateCibil"
+            class="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 transition-all text-white font-semibold py-3 rounded-md shadow-md mt-4">
+            Generate CIBIL Score
+        </button>
+
+        <h3 class="text-xl font-semibold text-center mt-4">CIBIL Score: 
+            <span id="cibil-result" class="text-[#005BAC]">--</span>
+        </h3>
+        
+        <canvas id="cibilChart" class="mt-6"></canvas>
+    </div>
+
+    <script>
+        document.getElementById("riskForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let data = {
+                revenue: document.getElementById("revenue").value,
+                loan: document.getElementById("loan").value,
+                gst: document.getElementById("gst").value,
+                defaults: document.getElementById("defaults").value,
+                bank: document.getElementById("bank").value,
+                market: document.getElementById("market").value,
+                credit: document.getElementById("credit").value
+            };
+
+            fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                document.getElementById("risk-result").innerText = result.risk;
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+        document.getElementById("generateCibil").addEventListener("click", function() {
+            let revenue = parseFloat(document.getElementById("revenue").value);
+            let loan = parseFloat(document.getElementById("loan").value);
+            let gst = parseInt(document.getElementById("gst").value);
+            let defaults = parseInt(document.getElementById("defaults").value);
+            let bank = { "Low": 0, "Medium": 1, "High": 2 }[document.getElementById("bank").value];
+            let market = { "Declining": 0, "Stable": 1, "Growing": 2 }[document.getElementById("market").value];
+            let credit = parseFloat(document.getElementById("credit").value);
+
+            let normRevenue = (revenue - 0) / (10000000 - 0);
+            let normLoan = (loan - 0) / (5000000 - 0);
+            let normGST = gst / 100;
+            let normDefaults = 1 - (defaults / 10);
+            let normBank = bank / 2;
+            let normMarket = market / 2;
+            let normCredit = (credit - 300) / 600;
+
+            let weightedScore = (0.15 * normRevenue) +
+                                (0.15 * (1 - normLoan)) +
+                                (0.10 * normGST) +
+                                (0.25 * normDefaults) +
+                                (0.10 * normBank) +
+                                (0.10 * normMarket) +
+                                (0.15 * normCredit);
+
+            let finalScore = 300 + (weightedScore * 600);
+            document.getElementById("cibil-result").innerText = Math.round(finalScore);
+            updateCibilChart(Math.round(finalScore));
+        });
+
+        function updateCibilChart(score) {
+            let ctx = document.getElementById('cibilChart').getContext('2d');
+            if (window.cibilChart) {
+                window.cibilChart.destroy();
+            }
+            window.cibilChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ["Poor", "Average", "Good", "Excellent"],
+                    datasets: [{
+                        label: "CIBIL Score",
+                        data: [
+                            score < 550 ? score : 0,
+                            score >= 550 && score < 650 ? score : 0,
+                            score >= 650 && score < 750 ? score : 0,
+                            score >= 750 ? score : 0
+                        ],
+                        backgroundColor: [
+                            score < 550 ? 'red' : 'lightgray',
+                            score >= 550 && score < 650 ? 'orange' : 'lightgray',
+                            score >= 650 && score < 750 ? 'yellow' : 'lightgray',
+                            score >= 750 ? 'green' : 'lightgray'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 900
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
