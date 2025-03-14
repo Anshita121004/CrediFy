@@ -14,3 +14,7 @@ Developed an **AI-Powered CIBIL Score Prediction System** for macro finance busi
 - **Machine Learning:** [Scikit-Learn](https://scikit-learn.org/) | [XGBoost](https://xgboost.readthedocs.io/en/latest/)  
 - **Visualization:** [Matplotlib](https://matplotlib.org/)  
 
+## 📂 Project Presentation  
+For a detailed overview of this project, you can refer to the presentation included in the repository:  
+📄 **[CREADIFY.pdf](./CREADIFY.pdf)**  
+This document provides insights into the project's objectives, methodology, implementation, and results.  
