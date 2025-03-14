@@ -16,5 +16,5 @@ Developed an **AI-Powered CIBIL Score Prediction System** for macro finance busi
 
 ## 📂 Project Presentation  
 For a detailed overview of this project, you can refer to the presentation included in the repository:  
-📄 **[CREADIFY.pdf](./CREADIFY.pdf)**  
+📄 **[CREDIFY.pdf](./CREDIFY.pdf)**  
 This document provides insights into the project's objectives, methodology, implementation, and results.  
